@@ -1,23 +1,63 @@
-import logo from './logo.svg';
 import './App.css';
+import { useState } from 'react';
+import User from './components/User';
+import Todo from './components/Todo';
+import Error from './components/Error';
 
 function App() {
+  const [users,setUsers]=useState([]);
+  const [todo,setTodos]=useState([]);
+  const [userData,setUserData]=useState(true);
+  const [errorFlag,setErrorFlag]=useState(false);
+  const fetchData =()=>{
+    fetch('https://jsonplaceholder.typicode.com/user')
+    .then(response=> {
+        if(response.ok){
+        return response.json();
+        }
+        else{
+        throw new Error('Error!!');
+        }
+      })
+    .then(data=>{
+      setUsers(data);     
+    })
+    .catch(error=>{
+      setErrorFlag(true);
+    });
+    setUserData(true);
+  }
+  
+  const fetchTodos =()=>{
+    fetch('https://jsonplaceholder.typicode.com/todos')
+    .then(response=>response.json())
+    .then(data=>{
+      setTodos(data);
+    })
+    .catch((error)=>{
+      setErrorFlag(true);
+    })
+      setUserData(false);
+  }
+
+  if(errorFlag){
+   
+    return( <Error/>);
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+       <div className='topbar'></div>
+        <div> <button onClick={fetchData}>Users</button>
+       
+        <button onClick={fetchTodos}>Todos</button>
+        </div>
+        {userData ? users.map((user,index)=><User user={user}/>)
+        :
+       todo.map((todos,index)=>
+              <Todo item={todos}/>
+           )
+           }
     </div>
   );
 }
